@@ -1,40 +1,33 @@
 #include <iostream>
-#include <chrono>
 #include <thread>
-#include <cmath>
 
 #include "CarState.hpp"
 
 void CarState::init()
 {
-    this->previousCicleStart = std::chrono::steady_clock::now();
+    this->previousCycleStart = std::chrono::steady_clock::now();
     this->timeFrame = 0.0;
     this->timeTemp = 0.0;
 }
 
-void CarState::runForVehicle(CarState carState, const Vehicle& vehicle)
+void CarState::triggerAccelerationUntilSpeed(float acceleration_request, float targetSpeed)
 {
-    (void) vehicle;
-    (void) carState;
-}
-
-void CarState::triggerAccelerationUntilSpeed(float value, float targetSpeed)
-{
-    float factor = 1.0;
+    float factor;
     float milliseconds = 0.0;
 
-    this->acceleration = this->getAcceleration(value);
-    if (this->acceleration < 0) { factor = -1.0; targetSpeed = 0;}
+    this->acceleration = this->getAcceleration(acceleration_request);
+    if (this->acceleration < 0) { factor = -1.0; }
+    if (this->acceleration > 0) { factor = 1.0; }
     this->setPedals(this->acceleration, factor);
     std::cout << "CAR Accelerating at " << this->acceleration << " ms2 !" << std::endl;
 
     while(factor * this->speed < targetSpeed) {
         this->now = std::chrono::steady_clock::now();
-        milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(this->now - this->previousCicleStart).count();
-        this->previousCicleStart = this->now;
+        milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(this->now - this->previousCycleStart).count();
+        this->previousCycleStart = this->now;
         this->timeFrame = milliseconds / 1000;
         // calculate distance before speed since it is using the start speed
-        this->distance += calcDistanceAST(this->acceleration, this->speed, this->timeFrame);
+        this->distance += calculateDistance(this->acceleration, this->speed, this->timeFrame);
         this->accumulateSpeed();
         this->timeTotal += this->timeFrame;
         this->timeDriving += this->timeFrame;
@@ -43,23 +36,24 @@ void CarState::triggerAccelerationUntilSpeed(float value, float targetSpeed)
     }
 }
 
-void CarState::triggerAccelerationForTime(float value, float targetTime)
+void CarState::triggerAccelerationForTime(float acceleration_request, float targetTime)
 {
-    float factor = 1.0;
+    float factor;
     float milliseconds = 0.0;
 
-    this->acceleration = getAcceleration(value);
+    this->acceleration = getAcceleration(acceleration_request);
     if (this->acceleration < 0) { factor = -1.0; }
+    if (this->acceleration > 0) { factor = 1.0; }
     this->setPedals(this->acceleration, factor);
     std::cout << "CAR Accelerating at " << this->acceleration << " ms2 !" << std::endl;
 
     while(this->timeTemp < targetTime) {
         this->now = std::chrono::steady_clock::now();
-        milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(this->now - this->previousCicleStart).count();
-        this->previousCicleStart = this->now;
+        milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(this->now - this->previousCycleStart).count();
+        this->previousCycleStart = this->now;
         this->timeFrame = milliseconds / 1000;
         // calculate distance before speed since it is using the start speed
-        this->distance += calcDistanceAST(this->acceleration, this->speed, this->timeFrame);
+        this->distance += calculateDistance(this->acceleration, this->speed, this->timeFrame);
         this->accumulateSpeed();
         this->timeTotal += this->timeFrame;
         this->timeTemp += this->timeFrame;
@@ -72,7 +66,7 @@ void CarState::triggerAccelerationForTime(float value, float targetTime)
 
 void CarState::accumulateSpeed()
 {
-    float result = this->speed + calcSpeedAT(this->acceleration, this->timeFrame);
+    float result = this->speed + calculateSpeed(this->acceleration, this->timeFrame);
     if (result < 0) {result = 0;}
     this->speed = result;
 }
@@ -90,8 +84,10 @@ void CarState::setPedals(float acceleration_input, float factor)
     if (factor == 1.0) {
         this->gasPedal = acceleration_input / this->maxAcceleration;
         this->breakPedal = 0;
+        return;
     }
-    else if (factor == -1.0) {
+
+    if (factor == -1.0) {
         this->gasPedal = 0;
         this->breakPedal = acceleration_input / this->maxDeacceleration;
     }

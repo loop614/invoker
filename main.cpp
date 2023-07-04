@@ -40,10 +40,8 @@ int main()
 int main2()
 {
     Vehicle *porsche = new Vehicle();
-    //"Distance","STEERANGLE","BRAKE","THROTTLE"
-    porsche->readFileForVeh("Assets/for_veh.csv", ",");
-    CarState carState;
-    Simulate simulate;
-    simulate.runTrack(carState, porsche);
+    porsche->readFileForVeh("../Assets/for_veh.csv", ",");
+    porsche->debugPrint();
+
     return 0;
 }

@@ -1,7 +1,8 @@
-TLDR: Practicing c++ data types, cmake, all for fun and education
+## Description
+- Simulate movement 
 
 ## Requirements
-cmake, c++ compiler, check CMakeLists
+cmake, build-essentials
 
 ## Quick Start
 ```console
@@ -10,4 +11,4 @@ $ ./cmake-build-debug/simulator_0
 ```
 
 ## TODOs:
-- use c++ style pointers  
+- use c++ smart pointers

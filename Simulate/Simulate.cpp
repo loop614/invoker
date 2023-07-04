@@ -3,12 +3,12 @@
 CarState Simulate::runScenario(CarState carState, Scenario scenario)
 {
     carState.init();
-    if (scenario.speedFlag && scenario.speed > 0) {
-        carState.triggerAccelerationUntilSpeed(DEFAULT_ACCELERATON, scenario.speed);
+    if (scenario.speedFlag && scenario.speed > 0 && scenario.speed > carState.speed) {
+        carState.triggerAccelerationUntilSpeed(DEFAULT_ACCELERATION, scenario.speed);
     }
 
-    if (carState.speed > 0 && scenario.speedFlag && scenario.speed < carState.speed) {
-        carState.triggerAccelerationUntilSpeed(-DEFAULT_ACCELERATON, scenario.speed);
+    if (scenario.speedFlag && carState.speed > 0 && scenario.speed < carState.speed) {
+        carState.triggerAccelerationUntilSpeed(-DEFAULT_ACCELERATION, scenario.speed);
     }
 
     if (scenario.accelerationFlag && scenario.acceleration != 0 && scenario.timeTotal != 0) {
@@ -17,10 +17,3 @@ CarState Simulate::runScenario(CarState carState, Scenario scenario)
 
     return carState;
 }
-
-
-CarState Simulate::runTrack(CarState carState, Vehicle* vehicle) {
-    carState.init();
-    carState.runForVehicle(carState, *vehicle);
-    return carState;
-};

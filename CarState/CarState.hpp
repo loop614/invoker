@@ -42,12 +42,11 @@ public:
     float maxAcceleration = 5.55;
     float maxDeacceleration = -18;
 
-    std::chrono::time_point<std::chrono::steady_clock> previousCicleStart;
+    std::chrono::time_point<std::chrono::steady_clock> previousCycleStart;
     std::chrono::time_point<std::chrono::steady_clock> now;
 
 public:
     void init();
-    static void runForVehicle(CarState carState, const Vehicle& vehicle);
     void triggerAccelerationUntilSpeed(float, float);
     void triggerAccelerationForTime(float value, float time);
     void setPedals(float, float);
@@ -59,7 +58,4 @@ public:
     void stopCar();
 };
 
-
 #endif // CARSTATE_HPP
-
-
